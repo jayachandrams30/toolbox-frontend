@@ -1,4 +1,4 @@
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://toolbox-backend-ak01.onrender.com/api/v1';
 
 export async function processFileApi(
     endpoint: string, 
