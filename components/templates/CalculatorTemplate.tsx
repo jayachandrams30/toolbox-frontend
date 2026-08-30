@@ -52,39 +52,48 @@ export function CalculatorTemplate({ tool }: { tool: ToolMetadata }) {
 
     // 2. Simple Interest
     if (slug.includes('simple-interest')) {
-      const p = num1;
-      const r = num2;
-      const t = num3;
+      const p = Math.max(0, num1);
+      const r = Math.max(0, num2);
+      const t = Math.max(0, num3);
       const interest = (p * r * t) / 100;
       const total = p + interest;
+      const principalRatio = total > 0 ? (p / total) * 100 : 100;
+      const interestRatio = total > 0 ? (interest / total) * 100 : 0;
       return {
-        type: 'standard',
+        type: 'interest',
         mainLabel: 'Total Interest Earned',
-        mainValue: `₹${interest.toFixed(2)}`,
+        mainValue: `₹${Math.round(interest).toLocaleString('en-IN')}`,
         items: [
-          { label: 'Principal', value: `₹${p.toLocaleString()}` },
-          { label: 'Interest', value: `₹${interest.toLocaleString()}` },
-          { label: 'Total Balance', value: `₹${total.toLocaleString()}` },
+          { label: 'Principal Amount', value: `₹${Math.round(p).toLocaleString('en-IN')}` },
+          { label: 'Interest Earned', value: `₹${Math.round(interest).toLocaleString('en-IN')}` },
+          { label: 'Total Amount (Principal + Interest)', value: `₹${Math.round(total).toLocaleString('en-IN')}` },
         ],
+        principalRatio: principalRatio.toFixed(1),
+        interestRatio: interestRatio.toFixed(1),
       };
     }
 
     // 3. Compound Interest
     if (slug.includes('compound-interest')) {
-      const p = num1;
-      const r = num2 / 100;
-      const t = num3;
+      const p = Math.max(0, num1);
+      const r = Math.max(0, num2) / 100;
+      const t = Math.max(0, num3);
       const n = 12; // monthly compounding
       const total = p * Math.pow(1 + r / n, n * t);
-      const interest = total - p;
+      const interest = Math.max(0, total - p);
+      const principalRatio = total > 0 ? (p / total) * 100 : 100;
+      const interestRatio = total > 0 ? (interest / total) * 100 : 0;
       return {
-        type: 'standard',
+        type: 'interest',
         mainLabel: 'Total Maturity Amount',
         mainValue: `₹${Math.round(total).toLocaleString('en-IN')}`,
         items: [
-          { label: 'Principal Invested', value: `₹${p.toLocaleString('en-IN')}` },
+          { label: 'Principal Invested', value: `₹${Math.round(p).toLocaleString('en-IN')}` },
           { label: 'Compound Interest', value: `₹${Math.round(interest).toLocaleString('en-IN')}` },
+          { label: 'Total Value', value: `₹${Math.round(total).toLocaleString('en-IN')}` },
         ],
+        principalRatio: principalRatio.toFixed(1),
+        interestRatio: interestRatio.toFixed(1),
       };
     }
 
@@ -271,6 +280,7 @@ export function CalculatorTemplate({ tool }: { tool: ToolMetadata }) {
   }, [tool.slug, num1, num2, num3, textInput, date1, date2, calcType]);
 
   const isEmiStyle = tool.slug.includes('emi') || tool.slug.includes('loan') || tool.slug.includes('mortgage');
+  const isInterestStyle = tool.slug.includes('interest');
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
@@ -305,7 +315,7 @@ export function CalculatorTemplate({ tool }: { tool: ToolMetadata }) {
             <div>
               <div className="flex justify-between items-center mb-2">
                 <label className="font-label-md text-[14px] text-on-surface">
-                  {isEmiStyle ? 'Loan Amount (₹)' : tool.slug.includes('bmi') ? 'Weight (kg)' : tool.slug.includes('fuel') ? 'Distance (km)' : 'Value 1'}
+                  {isEmiStyle ? 'Loan Amount (₹)' : isInterestStyle ? 'Principal Amount (₹)' : tool.slug.includes('bmi') ? 'Weight (kg)' : tool.slug.includes('fuel') ? 'Distance (km)' : 'Value 1'}
                 </label>
                 <input 
                   type="number" 
@@ -316,9 +326,9 @@ export function CalculatorTemplate({ tool }: { tool: ToolMetadata }) {
               </div>
               <input 
                 type="range" 
-                min={isEmiStyle ? 100000 : 1} 
-                max={isEmiStyle ? 10000000 : 10000} 
-                step={isEmiStyle ? 50000 : 1}
+                min={isEmiStyle ? 100000 : (isInterestStyle ? 5000 : 1)} 
+                max={isEmiStyle || isInterestStyle ? 10000000 : 10000} 
+                step={isEmiStyle ? 50000 : (isInterestStyle ? 5000 : 1)}
                 value={num1} 
                 onChange={(e) => setNum1(Number(e.target.value))}
                 className="custom-range mt-1"
@@ -329,7 +339,7 @@ export function CalculatorTemplate({ tool }: { tool: ToolMetadata }) {
             <div>
               <div className="flex justify-between items-center mb-2">
                 <label className="font-label-md text-[14px] text-on-surface">
-                  {isEmiStyle ? 'Interest Rate (%)' : tool.slug.includes('bmi') ? 'Height (cm)' : tool.slug.includes('fuel') ? 'Mileage (km/l)' : 'Value 2 / Rate (%)'}
+                  {isEmiStyle || isInterestStyle ? 'Interest Rate (% p.a.)' : tool.slug.includes('bmi') ? 'Height (cm)' : tool.slug.includes('fuel') ? 'Mileage (km/l)' : 'Value 2 / Rate (%)'}
                 </label>
                 <input 
                   type="number" 
@@ -341,7 +351,7 @@ export function CalculatorTemplate({ tool }: { tool: ToolMetadata }) {
               <input 
                 type="range" 
                 min={tool.slug.includes('bmi') ? 100 : 0.1} 
-                max={tool.slug.includes('bmi') ? 220 : 30} 
+                max={tool.slug.includes('bmi') ? 220 : (isInterestStyle ? 50 : 30)} 
                 step={0.1}
                 value={num2} 
                 onChange={(e) => setNum2(Number(e.target.value))}
@@ -354,7 +364,7 @@ export function CalculatorTemplate({ tool }: { tool: ToolMetadata }) {
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <label className="font-label-md text-[14px] text-on-surface">
-                    {isEmiStyle ? 'Tenure (Years)' : tool.slug.includes('fuel') ? 'Fuel Price (₹/L)' : tool.slug.includes('tip') ? 'Split Count' : 'Duration / Time'}
+                    {isEmiStyle || isInterestStyle ? 'Time Period (Years)' : tool.slug.includes('fuel') ? 'Fuel Price (₹/L)' : tool.slug.includes('tip') ? 'Split Count' : 'Duration / Time'}
                   </label>
                   <input 
                     type="number" 
@@ -366,7 +376,7 @@ export function CalculatorTemplate({ tool }: { tool: ToolMetadata }) {
                 <input 
                   type="range" 
                   min={1} 
-                  max={isEmiStyle ? 30 : 200} 
+                  max={isEmiStyle || isInterestStyle ? 30 : 200} 
                   step={1}
                   value={num3} 
                   onChange={(e) => setNum3(Number(e.target.value))}
@@ -402,10 +412,12 @@ export function CalculatorTemplate({ tool }: { tool: ToolMetadata }) {
           )}
         </div>
 
-        {/* Visual Chart for EMI/Loan */}
-        {calculation.type === 'emi' && calculation.principalRatio && (
+        {/* Visual Chart for EMI/Loan/Interest */}
+        {(calculation.type === 'emi' || calculation.type === 'interest') && calculation.principalRatio && (
           <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex flex-col items-center">
-            <h4 className="font-headline-sm text-[20px] text-on-surface mb-4">Payment Breakdown</h4>
+            <h4 className="font-headline-sm text-[20px] text-on-surface mb-4">
+              {calculation.type === 'emi' ? 'Payment Breakdown' : 'Principal vs Interest Breakdown'}
+            </h4>
             <div className="w-full bg-secondary-fixed h-4 rounded-full overflow-hidden flex mb-4">
               <div 
                 className="bg-primary-container h-full transition-all duration-300"
