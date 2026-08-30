@@ -1,8 +1,0 @@
-@import "tailwindcss";
-@config "../tailwind.config.ts";
-
-@layer base {
-  body {
-    background-color: #fdf9f0; /* bg-background fallback */
-  }
-}
