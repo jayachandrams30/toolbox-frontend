@@ -3,6 +3,15 @@ import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import Link from 'next/link';
 
+import { PDFToolTemplate } from '@/components/templates/PDFToolTemplate';
+import { ImageToolTemplate } from '@/components/templates/ImageToolTemplate';
+import { CalculatorTemplate } from '@/components/templates/CalculatorTemplate';
+import { ConverterTemplate } from '@/components/templates/ConverterTemplate';
+import { TextToolTemplate } from '@/components/templates/TextToolTemplate';
+import { DeveloperToolTemplate } from '@/components/templates/DeveloperToolTemplate';
+import { DateTimeToolTemplate } from '@/components/templates/DateTimeToolTemplate';
+import { FinanceToolTemplate } from '@/components/templates/FinanceToolTemplate';
+
 type Props = {
   params: Promise<{ slug: string }>;
 }
@@ -54,21 +63,15 @@ export default async function ToolPage({ params }: Props) {
       </div>
 
       {/* Tool Template Area */}
-      <div className="card" style={{ minHeight: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--surface)', marginBottom: '48px' }}>
-        {tool.executionType === 'client' ? (
-          <div style={{ textAlign: 'center' }}>
-            <p style={{ marginBottom: '16px' }}>Client-side logic for <strong>{tool.name}</strong> will be implemented here.</p>
-            <button className="btn btn-primary">Simulate Action</button>
-          </div>
-        ) : (
-          <div style={{ textAlign: 'center' }}>
-            <p style={{ marginBottom: '16px' }}>Backend logic for <strong>{tool.name}</strong> will run here.</p>
-            <div style={{ border: '2px dashed var(--outline)', padding: '48px', borderRadius: 'var(--radius-md)', marginBottom: '16px' }}>
-              Drop files here
-            </div>
-            <button className="btn btn-primary">Upload & Process</button>
-          </div>
-        )}
+      <div style={{ marginBottom: '48px' }}>
+        {tool.template === 'PDFToolTemplate' && <PDFToolTemplate tool={tool} />}
+        {tool.template === 'ImageToolTemplate' && <ImageToolTemplate tool={tool} />}
+        {tool.template === 'CalculatorTemplate' && <CalculatorTemplate tool={tool} />}
+        {tool.template === 'ConverterTemplate' && <ConverterTemplate tool={tool} />}
+        {tool.template === 'TextToolTemplate' && <TextToolTemplate tool={tool} />}
+        {tool.template === 'DeveloperToolTemplate' && <DeveloperToolTemplate tool={tool} />}
+        {tool.template === 'DateTimeToolTemplate' && <DateTimeToolTemplate tool={tool} />}
+        {tool.template === 'FinanceToolTemplate' && <FinanceToolTemplate tool={tool} />}
       </div>
 
       {/* Related Tools */}
