@@ -32,51 +32,35 @@ export function SearchBar() {
   }, []);
 
   return (
-    <div ref={searchRef} style={{ position: 'relative' }}>
+    <div ref={searchRef} className="relative group flex items-center">
+      <div className="absolute inset-y-0 left-2 flex items-center pointer-events-none">
+        <span className="material-symbols-outlined text-outline text-[18px]">search</span>
+      </div>
       <input 
         type="search" 
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onFocus={() => { if (results.length > 0) setIsOpen(true); }}
-        placeholder="Search tools..." 
-        className="input-field" 
-        style={{ padding: '8px 16px', height: '36px', borderRadius: '18px', width: '250px' }} 
+        placeholder="Search..." 
+        className="h-[36px] pl-8 pr-4 bg-surface-container-lowest border border-outline-variant rounded-full font-body-md text-[14px] text-on-surface placeholder:text-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors w-[200px]"
       />
       {isOpen && results.length > 0 && (
-        <div style={{
-          position: 'absolute',
-          top: '100%',
-          marginTop: '8px',
-          right: 0,
-          width: '320px',
-          backgroundColor: 'var(--surface)',
-          border: '1px solid var(--outline)',
-          borderRadius: 'var(--radius-md)',
-          boxShadow: 'var(--shadow-md)',
-          zIndex: 1000,
-          overflow: 'hidden'
-        }}>
+        <div className="absolute top-full right-0 mt-2 w-[320px] bg-surface border border-outline-variant rounded-xl shadow-lg z-50 overflow-hidden">
           {results.map(tool => (
             <Link 
               key={tool.id} 
               href={`/tools/${tool.slug}`}
               onClick={() => setIsOpen(false)}
-              style={{
-                display: 'block',
-                padding: '12px 16px',
-                color: 'var(--on-background)',
-                borderBottom: '1px solid var(--outline)',
-                textDecoration: 'none'
-              }}
+              className="block px-4 py-3 border-b border-outline-variant/30 hover:bg-surface-container transition-colors"
             >
-              <div style={{ fontWeight: 500, fontSize: '14px' }}>{tool.name}</div>
-              <div style={{ fontSize: '12px', color: 'var(--on-surface)' }}>{tool.category}</div>
+              <div className="font-label-md text-[14px] text-on-surface">{tool.name}</div>
+              <div className="font-body-md text-[12px] text-on-surface-variant">{tool.category}</div>
             </Link>
           ))}
           <Link 
             href={`/tools?q=${encodeURIComponent(query)}`} 
             onClick={() => setIsOpen(false)}
-            style={{ display: 'block', padding: '12px 16px', textAlign: 'center', fontSize: '14px', color: 'var(--primary)', fontWeight: 500 }}
+            className="block px-4 py-3 text-center font-label-md text-[14px] text-primary hover:bg-surface-container-low transition-colors"
           >
             See all results
           </Link>
